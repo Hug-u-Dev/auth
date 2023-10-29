@@ -1,5 +1,4 @@
 export interface Ilogin {
-    userName: string,
+    login: string,
     password: string
-
 }

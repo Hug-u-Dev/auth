@@ -20,12 +20,11 @@ export class UserRepository {
 	};
     
 	register = async(fields: Omit<User, "id">) => {
-		const {userName, login, email, password } = fields;
+		const {email, password } = fields;
 		const user = await prisma.user.create({
 			data: {
 				id: v4(),
-				userName,
-				login,
+				login: email,
 				email,
 				password
 			}});
@@ -33,6 +32,7 @@ export class UserRepository {
 	};
 
 	update = async(id: string, fields: Omit<User, "id">) => {
+		fields.updatedAt = new Date();
 		const user = await prisma.user.update({
 			data: fields,
 			where: {id}
