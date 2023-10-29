@@ -1,10 +1,6 @@
 import { body } from "express-validator";
 
 export const userValidator = [
-	body("userName")
-		.exists({ values: "falsy" }).withMessage("UserName é obrigatório")
-		.isLength({ min: 3 }).withMessage("UserName precisa ter mais de 3 caracteres")
-		.isString().withMessage("UserName é inválido"),
 	body("email")
 		.exists({ values: "falsy" }).withMessage("Email é obrigatório")
 		.isEmail().withMessage("Email inválido"),

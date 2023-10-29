@@ -6,6 +6,8 @@ import { UserService } from "./user.service";
 import Jwt from "jsonwebtoken";
 import { TokenRepository } from "../repositories/token.repository";
 import { accesSecret, accessTokenExpiration, refreshSecret, refreshTokenExpiration } from "../config/token.config";
+import {Role} from "@prisma/client";
+import bcrypt from "bcrypt";
 
 const userRepository = new UserRepository();
 const userService = new UserService();
@@ -37,15 +39,21 @@ export class AuthService {
     
 	login = async(fields: Ilogin): Promise<ResponseBody<any>> => {
 
-		const {userName, password } = fields;
-		const user = await userRepository.getUnique({userName});
-		if (user?.password === password) {
-			const accessToken = await this.issueAccessToken({userName: user?.userName, userID: user?.id });
-			const refreshToken = await this.issueRefreshToken({userName: user?.userName}, user.id);
+		const {login, password } = fields;
+		const user = await userRepository.getUnique({login});
+		if (!user) {
+			return  new BadRequest("Não foi possível logar");
+		}
+
+		const comparePwd = await bcrypt.compare(password, user.password);
+		if (comparePwd) {
+			const accessToken = await this.issueAccessToken({login: user?.login, userID: user?.id, role: user?.role });
+			const refreshToken = await this.issueRefreshToken({login: user?.login}, user.id);
 			return new OK({accessToken, refreshToken});
-		} else {
-			return  new BadRequest("Não foi possível logar");}
-	};
+		}
+
+		return  new BadRequest("Não foi possível logar");
+	}
 
 	logout = async(): Promise<ResponseBody<any>> => {
 		return new OK();
@@ -56,13 +64,15 @@ export class AuthService {
     
 		const login = profile.id + "_" + profile.provider;
 		const isRegistered = await userRepository.getUnique({login});
-    
+
 		if (!isRegistered) {
 			await userService.register({
-				userName: profile.displayName, 
 				login: login,
 				email: profile._json.email?? "need_register@email.com",
-				password: profile.id
+				role: Role.USER,
+				password: profile.id,
+				createdAt: new Date(),
+				updatedAt: new Date()
 			});
     
 		}
@@ -79,10 +89,11 @@ export class AuthService {
 		const user = await userRepository.getUnique({id: tokenDB.userId});
 		if (!user) return new Unathorized("Nenhum usuário associado ao token");
        
-		const accessToken = await this.issueAccessToken({userName: user?.userName, userID: user?.id });
-		const refreshToken = await this.issueRefreshToken({userName: user?.userName}, user?.id);
+		const accessToken = await this.issueAccessToken({login: user?.login, userID: user?.id });
+		const refreshToken = await this.issueRefreshToken({login: user?.login}, user?.id);
        
 		return new OK({accessToken, refreshToken});
 	};
+
 
 }
