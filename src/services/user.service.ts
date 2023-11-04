@@ -1,6 +1,7 @@
 import { User } from "@prisma/client";
 import { UserRepository } from "../repositories/user.repository";
 import { BadRequest, Conflict, Created, NotFound, OK, ResponseBody } from "../commom/responses/responses";
+import bcrypt from "bcrypt";
 
 const userRepository = new UserRepository();
 
@@ -20,13 +21,15 @@ export class UserService {
 	};
 
 	register = async(fields: Omit<User, "id">): Promise<ResponseBody<User>> => {
-		const {userName, email} = fields;
-		const isUserNameUnique = await userRepository.getUnique({userName});
+		const {email} = fields;
+		const isLoginUnique = await userRepository.getUnique({email});
 		const isEmailUnique = await userRepository.getUnique({email});
 
-		if (isEmailUnique || isUserNameUnique) {
-			return new Conflict("Conflito! UserName e Email precisam ser únicos!");
+		if (isEmailUnique || isLoginUnique) {
+			return new Conflict("Conflito! email precisa ser único!");
 		}
+
+		fields.password = await bcrypt.hash(fields.password, 10);
 
 		const user = await userRepository.register(fields);
 		if (!user) return new BadRequest("Não foi possível criar o usuário");
