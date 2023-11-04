@@ -20,10 +20,11 @@ export class UserRepository {
 	};
     
 	register = async(fields: Omit<User, "id">) => {
-		const {email, password } = fields;
+		const {email,name, password } = fields;
 		const user = await prisma.user.create({
 			data: {
 				id: v4(),
+				name,
 				login: email,
 				email,
 				password

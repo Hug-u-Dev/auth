@@ -1,6 +1,9 @@
 import { body } from "express-validator";
 
 export const userValidator = [
+	body("name")
+		.exists({ values: "falsy" }).withMessage("Nome é obrigatório")
+		.isString().withMessage("Nome Inválido"),
 	body("email")
 		.exists({ values: "falsy" }).withMessage("Email é obrigatório")
 		.isEmail().withMessage("Email inválido"),

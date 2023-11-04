@@ -53,7 +53,7 @@ export class AuthService {
 		}
 
 		return  new BadRequest("Não foi possível logar");
-	}
+	};
 
 	logout = async(): Promise<ResponseBody<any>> => {
 		return new OK();
@@ -68,6 +68,7 @@ export class AuthService {
 		if (!isRegistered) {
 			await userService.register({
 				login: login,
+				name: profile.displayName,
 				email: profile._json.email?? "need_register@email.com",
 				role: Role.USER,
 				password: profile.id,
