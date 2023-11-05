@@ -32,7 +32,7 @@ export class UserRepository {
 		return user;
 	};
 
-	update = async(id: string, fields: Omit<User, "id">) => {
+	update = async(id: string, fields: Partial<User>) => {
 		fields.updatedAt = new Date();
 		const user = await prisma.user.update({
 			data: fields,

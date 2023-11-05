@@ -29,7 +29,22 @@ model Token {
   expiresAt  DateTime
 }
 
+model Validation_token {
+  id                  String                @id
+  channel             Channel
+  token               Int
+  receiver            String                
+  createdAt           DateTime              @default(now())
+  valid               Boolean
+  expiresAt           DateTime
+}
+
 enum Role {
   USER
   ADMIN
+}
+
+enum Channel {
+  EMAIL
+  PHONE
 }

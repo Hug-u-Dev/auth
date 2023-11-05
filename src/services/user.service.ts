@@ -37,7 +37,7 @@ export class UserService {
         
 	};
 
-	update = async(id: string, fields: Omit<User, "id">): Promise<ResponseBody<User>> => {  
+	update = async(id: string, fields: Partial<User>): Promise<ResponseBody<User>> => {  
 		const userExists = await userRepository.getUnique({id});
 		if (!userExists) return new NotFound("usuário não encontrado");
 
