@@ -9,7 +9,6 @@ import { userRoute } from "./user.routes";
 
 export const routes = Router();
 
-
 const authController = new AuthController();
 
 routes.post("/login",loginValidator, validationErrors, authController.login);
