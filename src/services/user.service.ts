@@ -34,10 +34,9 @@ export class UserService {
 		const user = await userRepository.register(fields);
 		if (!user) return new BadRequest("Não foi possível criar o usuário");
 		return new Created(user);
-        
 	};
 
-	update = async(id: string, fields: Omit<User, "id">): Promise<ResponseBody<User>> => {  
+	update = async(id: string, fields: Partial<User>): Promise<ResponseBody<User>> => {  
 		const userExists = await userRepository.getUnique({id});
 		if (!userExists) return new NotFound("usuário não encontrado");
 
