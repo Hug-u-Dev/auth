@@ -33,6 +33,7 @@ export class UserService {
 
 		const user = await userRepository.register(fields);
 		if (!user) return new BadRequest("Não foi possível criar o usuário");
+		
 		return new Created(user);
 	};
 

@@ -1,3 +1,4 @@
+import { Profile } from "passport-google-oauth20";
 import {  ResponseBody, Token } from "../commom/responses/responses";
 import { AuthService } from "../services/auth.service";
 import { Request, Response } from "express";
@@ -9,6 +10,17 @@ export class AuthController {
 		try {
 			const fields = req.body;
 			const login: ResponseBody<Token> = await authService.login(fields);
+			return res.status(login.statusCode).json(login.response);
+		}
+		catch (e) {
+			return res.status(500).json(e);
+		}
+	};
+
+	google = async(req: Request, res: Response) => {
+		try {
+			const profile = req.user as Profile;
+			const login: ResponseBody<Token> = await authService.google(profile);
 			return res.status(login.statusCode).json(login.response);
 		}
 		catch (e) {

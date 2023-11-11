@@ -1,8 +1,11 @@
 import {Router, NextFunction, Request, Response} from "express";
 import session from "express-session";
 import passport from "passport";
+import { AuthController } from "../controllers/auth.controller";
 
 export const googleRoutes = Router();
+
+const authController = new AuthController();
 
 function isLoggedIn(req: Request, res: Response, next: NextFunction) {
 	req.user ? next() : res.sendStatus(401);
@@ -20,7 +23,7 @@ googleRoutes.use(passport.session());
 
 
 
-// http://localhost:3003/auth/google
+// http://localhost:3004/auth/google -> rota passando pelo gateway
 googleRoutes.get("/",
 	passport.authenticate("google", { scope: ["email", "profile"]})
 );
@@ -37,9 +40,7 @@ googleRoutes.get("/failure", (req, res) => {
 	res.send("something went wrong...");
 });
 
-googleRoutes.get("/protected", isLoggedIn, (req, res) => {
-	res.redirect("http://localhost:3000/registerGoogle");
-});
+googleRoutes.get("/protected", isLoggedIn, authController.google);
 
 googleRoutes.get("/logout", (req, res, next) => {
 	req.logOut((err) => {
