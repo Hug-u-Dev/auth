@@ -3,8 +3,9 @@ export interface ResponseBody<T> {
     response: T | string,
 }
 
-export interface Token{
-    token: string
+export interface IToken{
+    accessToken: string, 
+	refreshToken:string
 }
 
 export class OK<T> implements ResponseBody<T> {

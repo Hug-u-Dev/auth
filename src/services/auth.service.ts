@@ -103,6 +103,7 @@ export class AuthService {
 
 		await tokenRepository.delete({token});
        
+		//TODO: TEM QUE COMPARAR O USERiD DO TOKEN COM ALGUM APSSADO PELO APP
 		const user = await userRepository.getUnique({id: tokenDB.userId});
 		if (!user) return new Unathorized("Nenhum usuário associado ao token");
        
