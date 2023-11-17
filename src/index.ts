@@ -1,6 +1,7 @@
 import express from "express";
 import dotenv from "dotenv";
 
+import "./config/passport.config";
 import { routes } from "./routes/index.routes";
 
 dotenv.config();

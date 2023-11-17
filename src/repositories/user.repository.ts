@@ -16,6 +16,7 @@ export class UserRepository {
 		const user = await prisma.user.findUnique({
 			where: fields
 		});
+
 		return user;
 	};
     

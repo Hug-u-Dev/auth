@@ -62,25 +62,38 @@ export class AuthService {
 		return new OK();
 	};
        
+	
+	google = async(profile: Profile): Promise<ResponseBody<any>> =>  {
     
-	google = async(profile: Profile): Promise<boolean> =>  {
-    
-		const login = profile.id + "_" + profile.provider;
-		const isRegistered = await userRepository.getUnique({login});
+	
+		const email= profile._json.email;
+		if (!email) {
+			return  new BadRequest("Nenhum email associado a essa conta google");
+		}
+		const isRegistered = await userRepository.getUnique({email});
+		const password = profile.id;
 
 		if (!isRegistered) {
 			await userService.register({
-				login: login,
+				login: email,
 				name: profile.displayName,
-				email: profile._json.email?? "need_register@email.com",
+				email,
 				role: Role.USER,
-				password: profile.id,
+				password,
 				createdAt: new Date(),
 				updatedAt: new Date()
 			});
     
 		}
-		return !!isRegistered;
+		const user = await userRepository.getUnique({email});
+	
+		if (user) {
+			const accessToken = await this.issueAccessToken({login: user?.login, userID: user?.id, role: user?.role });
+			const refreshToken = await this.issueRefreshToken({login: user?.login}, user.id);
+			return new OK({accessToken, refreshToken});
+		} else {
+			return  new BadRequest("Não foi possível logar");
+		}  
 	};
 
 	refreshToken = async(token:string): Promise<ResponseBody<any>> => {
@@ -90,6 +103,7 @@ export class AuthService {
 
 		await tokenRepository.delete({token});
        
+		//TODO: TEM QUE COMPARAR O USERiD DO TOKEN COM ALGUM APSSADO PELO APP
 		const user = await userRepository.getUnique({id: tokenDB.userId});
 		if (!user) return new Unathorized("Nenhum usuário associado ao token");
        

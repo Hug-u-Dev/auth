@@ -20,12 +20,14 @@ export class UserService {
 		return new OK(user);
 	};
 
+
+
 	register = async(fields: Omit<User, "id">): Promise<ResponseBody<User>> => {
 		const {email} = fields;
-		const isLoginUnique = await userRepository.getUnique({email});
+		// const isLoginUnique = await userRepository.getUnique({email});
 		const isEmailUnique = await userRepository.getUnique({email});
 
-		if (isEmailUnique || isLoginUnique) {
+		if (isEmailUnique) {
 			return new Conflict("Conflito! email precisa ser único!");
 		}
 
@@ -33,13 +35,18 @@ export class UserService {
 
 		const user = await userRepository.register(fields);
 		if (!user) return new BadRequest("Não foi possível criar o usuário");
+		
 		return new Created(user);
 	};
 
 	update = async(id: string, fields: Partial<User>): Promise<ResponseBody<User>> => {  
 		const userExists = await userRepository.getUnique({id});
 		if (!userExists) return new NotFound("usuário não encontrado");
-
+		
+		if (fields.password) {
+			fields.password = await bcrypt.hash(fields.password, 10);
+		}
+				
 		const user = await userRepository.update(id, fields);
 
 		if (!user) return new BadRequest("Não foi possível modificar o usuário");
